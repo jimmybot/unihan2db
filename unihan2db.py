@@ -5,6 +5,7 @@ import sqlite3
 SOURCE_DIR = 'data/source'
 READINGS_FILE = 'Unihan_Readings.txt'
 VARIANTS_FILE = 'Unihan_Variants.txt'
+DICTIONARYLIKE_FILE = 'Unihan_DictionaryLikeData.txt'
 
 DERIVED_DIR = 'data/derived'
 DB_FILE = 'unihan.db'
@@ -17,7 +18,7 @@ def codepoint2chr(codepoint):
 def codepoints2chr(text):
     return codepointRE.sub(lambda match: codepoint2chr(match.group(0)), text)
 
-def process_readings(left, middle, right):
+def process_simple(left, middle, right):
     return (codepoint2chr(left), middle, right)
 
 def process_variants(left, middle, right):
@@ -47,8 +48,11 @@ def write_data(reading_rows, table_name, derived_dir=DERIVED_DIR, db_file=DB_FIL
 
 
 if __name__ == '__main__':
-    rows = read_file(process_readings, SOURCE_DIR, READINGS_FILE)
+    rows = read_file(process_simple, SOURCE_DIR, READINGS_FILE)
     write_data(rows, 'readings')
 
     rows = read_file(process_variants, SOURCE_DIR, VARIANTS_FILE)
     write_data(rows, 'variants')
+
+    rows = read_file(process_simple, SOURCE_DIR, DICTIONARYLIKE_FILE)
+    write_data(rows, 'dictionary_like_data')
