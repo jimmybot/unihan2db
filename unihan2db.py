@@ -10,14 +10,6 @@ DICTIONARYLIKE_FILE = 'Unihan_DictionaryLikeData.txt'
 DERIVED_DIR = 'data/derived'
 DB_FILE = 'unihan.db'
 
-codepointRE = re.compile('U\+[0-9A-F]+')
-
-def codepoint2chr(codepoint):
-    return chr(int(codepoint[2:], 16))
-
-def codepoints2chr(text):
-    return codepointRE.sub(lambda match: codepoint2chr(match.group(0)), text)
-
 def process_simple(left, middle, right):
     return (codepoint2chr(left), middle, right)
 
@@ -28,6 +20,25 @@ def process_variants(left, middle, right):
     except ValueError as e:
         print('Error: ' + str(e))
         print('\t'.join((left, middle, right)))
+
+FILES = [
+    ['Unihan_Readings.txt', 'readings', process_simple],
+    ['Unihan_Variants.txt', 'variants', process_variants],
+    ['Unihan_DictionaryLikeData.txt', 'dictionary_like_data', process_simple],
+    ['Unihan_DictionaryIndices.txt', 'dictionary_indices', process_simple],
+    ['Unihan_IRGSources.txt', 'irg_sources', process_simple],
+    ['Unihan_NumericValues.txt', 'numeric_values', process_simple],
+    ['Unihan_OtherMappings.txt', 'other_mappings', process_simple],
+    ['Unihan_RadicalStrokeCounts.txt', 'radical_stroke_counts', process_simple],
+]
+
+codepointRE = re.compile('U\+[0-9A-F]+')
+
+def codepoint2chr(codepoint):
+    return chr(int(codepoint[2:], 16))
+
+def codepoints2chr(text):
+    return codepointRE.sub(lambda match: codepoint2chr(match.group(0)), text)
 
 def read_file(process_fn, source_dir=SOURCE_DIR, readings_file=READINGS_FILE):
     reading_rows = []
@@ -48,11 +59,7 @@ def write_data(reading_rows, table_name, derived_dir=DERIVED_DIR, db_file=DB_FIL
 
 
 if __name__ == '__main__':
-    rows = read_file(process_simple, SOURCE_DIR, READINGS_FILE)
-    write_data(rows, 'readings')
+    for filename, table_name, process_fn in FILES:
+        rows = read_file(process_fn, SOURCE_DIR, filename)
+        write_data(rows, table_name)
 
-    rows = read_file(process_variants, SOURCE_DIR, VARIANTS_FILE)
-    write_data(rows, 'variants')
-
-    rows = read_file(process_simple, SOURCE_DIR, DICTIONARYLIKE_FILE)
-    write_data(rows, 'dictionary_like_data')

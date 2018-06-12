@@ -1,7 +1,5 @@
 # unihan2db
 
-**WIP**
-
 Python 3 script that converts unihan text data files into sqlite3 db tables for easy querying
 
 1. Run ```./init``` to wget the Unihan data archive
